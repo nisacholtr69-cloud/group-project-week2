@@ -1,0 +1,59 @@
+"""pages/page4.py - search and filter the spending history."""
+import storage
+
+TITLE = "ค้นหาประวัติการเงิน"
+
+
+def make_transaction(item):
+	"""แปลงข้อมูลใน data.json ให้เป็นรายการที่หน้าเว็บใช้แสดงผล"""
+	description = item.get("description", item.get("name", "ไม่มีรายละเอียด"))
+	category = item.get("category", "อื่น ๆ")
+	date = item.get("date", item.get("transaction_date", ""))
+	amount = item.get("amount", item.get("price", 0))
+	try:
+		amount = float(amount)
+	except (TypeError, ValueError):
+		amount = 0
+	return {
+		"date": str(date),
+		"description": str(description),
+		"category": str(category),
+		"amount": amount,
+	}
+
+
+def build(query):
+	keyword = query.get("q", "").strip().lower()
+	start_date = query.get("start", "").strip()
+	end_date = query.get("end", "").strip()
+	selected_category = query.get("category", "").strip()
+
+	all_items = storage.load()
+	transactions = []
+	categories = []
+	for item in all_items:
+		transaction = make_transaction(item)
+		if transaction["category"] not in categories:
+			categories.append(transaction["category"])
+		text = (transaction["description"] + " " + transaction["category"]).lower()
+		matches_keyword = keyword == "" or keyword in text
+		matches_category = selected_category == "" or transaction["category"] == selected_category
+		matches_start = start_date == "" or transaction["date"] >= start_date
+		matches_end = end_date == "" or transaction["date"] <= end_date
+		if matches_keyword and matches_category and matches_start and matches_end:
+			transactions.append(transaction)
+
+	total_amount = 0
+	for transaction in transactions:
+		total_amount += transaction["amount"]
+
+	return {
+		"transactions": transactions,
+		"total": len(transactions),
+		"total_amount": total_amount,
+		"keyword": query.get("q", ""),
+		"start_date": start_date,
+		"end_date": end_date,
+		"selected_category": selected_category,
+		"categories": categories,
+	}
