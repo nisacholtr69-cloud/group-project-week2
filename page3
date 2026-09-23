@@ -1,0 +1,86 @@
+"""pages/page3.py — วางแผนการออมเงินสำหรับนักศึกษา."""
+import math
+
+TITLE = "วางแผนการออมเงิน"
+
+
+def read_number(value, default):
+    """Convert a form value to a float, falling back to a safe default."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return default
+    if number != number:
+        return default
+    return number
+
+
+def build(query):
+    current = max(0.0, read_number(query.get("current", ""), 0.0))
+    monthly = max(0.0, read_number(query.get("monthly", ""), 2000.0))
+    goal = max(0.0, read_number(query.get("goal", ""), 50000.0))
+    rate = max(0.0, read_number(query.get("rate", ""), 3.0))
+
+    status = "ยังไม่บรรลุเป้าหมาย"
+    months_needed = 0
+    reached = False
+    final_balance = current
+
+    if goal <= current:
+        reached = True
+        status = "บรรลุเป้าหมายแล้ว"
+        months_needed = 0
+    elif monthly <= 0:
+        reached = False
+        status = "ยังไม่บรรลุเป้าหมาย"
+        months_needed = None
+    else:
+        monthly_rate = rate / 100 / 12
+        balance = current
+        months = 0
+
+        while balance < goal:
+            months += 1
+            if monthly_rate > 0:
+                balance = balance * (1 + monthly_rate) + monthly
+            else:
+                balance = balance + monthly
+            if months > 600:
+                break
+
+        months_needed = months
+        final_balance = balance
+        reached = balance >= goal
+        if reached:
+            status = "บรรลุเป้าหมายแล้ว"
+        else:
+            status = "ยังไม่บรรลุเป้าหมาย"
+
+    rows = []
+    balance = current
+    for month in range(1, min(12, max(1, months_needed or 1)) + 1):
+        if monthly_rate := (rate / 100 / 12):
+            balance = balance * (1 + monthly_rate) + monthly
+        else:
+            balance = balance + monthly
+        rows.append({
+            "month": month,
+            "balance": balance,
+        })
+
+    progress = 0
+    if goal > 0:
+        progress = min(100.0, (current / goal) * 100)
+
+    return {
+        "current": current,
+        "monthly": monthly,
+        "goal": goal,
+        "rate": rate,
+        "months_needed": months_needed,
+        "status": status,
+        "reached": reached,
+        "final_balance": final_balance,
+        "progress": progress,
+        "rows": rows,
+    }
