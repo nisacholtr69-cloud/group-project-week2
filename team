@@ -1,0 +1,58 @@
+"""pages/team.py - ข้อมูลสมาชิกและงานของกลุ่ม"""
+
+TITLE = "ทีม"
+
+GROUP = {
+	"name": "Group 3",
+	"section": "1309102",
+	"topic": "ระบบจัดการและวิเคราะห์การเงินส่วนบุคคล",
+	"description": "เว็บไซต์สำหรับบันทึก สรุป คำนวณ และค้นหาประวัติการเงิน",
+}
+
+MEMBERS = [
+	{
+		"name": "นางสาวณัฐวดี พรมลี",
+		"id": "69130041161",
+		"role": "Project Lead (PM)",
+		"task": "Page 1 บันทึกและแสดงรายรับ-รายจ่าย",
+	},
+	{
+		"name": "นางสาว ณัฐธิดา บุญสม",
+		"id": "69130041059",
+		"role": "Frontend Dev (HTML/CSS)",
+		"task": "Page 2 สรุปสถิติและวิเคราะห์การเงิน",
+	},
+	{
+		"name": "นางสาว ณัฐพัชร์ ประวรรณากร",
+		"id": "69130041105",
+		"role": "Data Engineer (data.json + models)",
+		"task": "Page 3 คำนวณเป้าหมายการออมเงิน",
+	},
+	{
+		"name": "นางสาว ณิศาชล ไตรพรม",
+		"id": "69130041253",
+		"role": "QA / Test (check.bat)",
+		"task": "Page 4 ค้นหาและกรองประวัติการเงิน",
+	},
+]
+
+TITLES = ["นางสาว", "นาย", "นาง", "ว่าที่ร้อยตรี", "Mr.", "Ms.", "Miss"]
+
+
+def initial_of(name):
+	name = name.strip()
+	for title in TITLES:
+		if name.startswith(title):
+			name = name[len(title):].strip()
+	if name == "":
+		return "?"
+	return name[0]
+
+
+def build():
+	members = []
+	for member in MEMBERS:
+		item = member.copy()
+		item["initial"] = initial_of(item["name"])
+		members.append(item)
+	return {"group": GROUP, "members": members, "count": len(members)}
