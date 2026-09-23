@@ -1,0 +1,37 @@
+""page2.py — สถิติ และเครื่องคำนวณค่าใช้จ่าย"""
+import storage
+
+TITLE = "สถิติการเงิน"
+
+
+def read_number(text, default):
+    try:
+        value = float(text)
+    except ValueError:
+        return default
+    if value != value or value in (float("inf"), float("-inf")):
+        return default
+    return value
+
+
+def build(query=None):
+    items = storage.load()
+    entries = []
+    total_income = 0.0
+    total_expense = 0.0
+    per_category = {}
+
+    for item in items:
+        if "type" in item and "amount" in item:
+            item_type = item.get("type", "expense")
+            amount = float(item.get("amount", 0))
+            category = item.get("category", "ทั่วไป")
+            note = item.get("note", "รายการ")
+            date = item.get("date", "")
+            if item_type == "income":
+                total_income = total_income + amount
+            else:
+                total_expense = total_expense + amount
+                if category in per_category:
+                    per_categ
+page2.py
