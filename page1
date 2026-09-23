@@ -1,0 +1,39 @@
+"""page1.py — บันทึกรายรับ-รายจ่าย"""
+import storage
+
+TITLE = "บันทึกรายรับ-รายจ่าย"
+
+
+def read_number(text):
+    """แปลงข้อความเป็นจำนวนเงินที่ถูกต้องหรือคืน None"""
+    try:
+        value = float(text)
+    except ValueError:
+        return None
+    if value != value or value in (float("inf"), float("-inf")):
+        return None
+    return value
+
+
+def build():
+    items = storage.load()
+    rows = []
+    income_total = 0.0
+    expense_total = 0.0
+
+    for index, item in enumerate(items):
+        row = {
+            "no": index,
+            "type": item.get("type", "income"),
+            "amount": float(item.get("amount", 0)),
+            "category": item.get("category", "ทั่วไป"),
+            "note": item.get("note", "-"),
+            "date": item.get("date", "-"),
+        }
+        if row["type"] == "income":
+            income_total = income_total + row["amount"]
+        else:
+            expense_total = expense_total + row["amount"]
+        rows.append(row)
+
+    rows.reverse()
